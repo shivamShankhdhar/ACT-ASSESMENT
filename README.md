@@ -106,11 +106,6 @@ npm install
 
 Create a `.env.local` file in the project root with the following variables:
 
-```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/?appName=AppName
-JWT_SECRET=your-secret-key-here-min-32-characters
-NEXT_PUBLIC_API_URL=http://localhost:3000
-```
 
 **Important:** Replace the MongoDB URI and JWT_SECRET with your actual values.
 
