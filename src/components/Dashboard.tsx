@@ -14,6 +14,18 @@ import {
   FiX,
 } from 'react-icons/fi';
 import { MdAssignment } from 'react-icons/md';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { count } from 'console';
 
 interface DashboardData {
   leads: Array<{ id: number; name: string; status: string; value: string }>;
@@ -35,6 +47,7 @@ export default function DashboardComponent() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'leads' | 'tasks' | 'users'>('leads');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -71,7 +84,11 @@ export default function DashboardComponent() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const confirmLogout = async () => {
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
@@ -83,7 +100,13 @@ export default function DashboardComponent() {
       }
     } catch (err: any) {
       setError(err.message || 'Logout failed');
+    } finally {
+      setShowLogoutDialog(false);
     }
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutDialog(false);
   };
 
   if (!user) {
@@ -115,15 +138,31 @@ export default function DashboardComponent() {
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
                 <p className="text-blue-100 text-sm">Welcome back, {user.name}!</p>
+                <p className="text-blue-100 text-sm">{user.email}</p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-200 backdrop-blur font-medium"
-            >
-              <FiLogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
+            <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+              <AlertDialogTrigger>
+                <div
+                  className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-200 backdrop-blur font-medium cursor-pointer"
+                >
+                  <FiLogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Logout</span>
+                </div>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to logout? You will be redirected to the login page.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel variant="secondary" onClick={cancelLogout}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction variant="destructive" onClick={confirmLogout}>Logout</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </header>
@@ -145,7 +184,7 @@ export default function DashboardComponent() {
         ) : (
           <>
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               {stats.map((stat) => {
                 const Icon = stat.icon;
                 return (
@@ -165,33 +204,7 @@ export default function DashboardComponent() {
                   </div>
                 );
               })}
-            </div>
-
-            {/* User Profile Card */}
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-xl p-6 mb-8 hover:bg-white/15 transition-all duration-200">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-4 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
-                  <FiUser className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-white">User Profile</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="flex items-center gap-3">
-                  <FiUser className="w-5 h-5 text-blue-400" />
-                  <div>
-                    <p className="text-gray-400 text-sm">Name</p>
-                    <p className="text-white font-semibold">{user.name}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FiMail className="w-5 h-5 text-purple-400" />
-                  <div>
-                    <p className="text-gray-400 text-sm">Email</p>
-                    <p className="text-white font-semibold truncate">{user.email}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </div> */}
 
             {/* Data Tabs */}
             <div className="bg-white/10 backdrop-blur border border-white/20 rounded-xl overflow-hidden">
@@ -199,10 +212,10 @@ export default function DashboardComponent() {
               <div className="border-b border-white/10">
                 <div className="flex overflow-x-auto px-4 sm:px-6">
                   {[
-                    { id: 'leads', label: 'Leads', icon: FiTrendingUp },
-                    { id: 'tasks', label: 'Tasks', icon: MdAssignment },
-                    { id: 'users', label: 'Team', icon: FiUsers },
-                  ].map(({ id, label, icon: Icon }) => (
+                    { id: 'leads', label: 'Leads', icon: FiTrendingUp,count: dashboardData?.leads.length || 0 },
+                    { id: 'tasks', label: 'Tasks', icon: MdAssignment,count: dashboardData?.tasks.length || 0 },
+                    { id: 'users', label: 'Team', icon: FiUsers,count: dashboardData?.users.length || 0 },
+                  ].map(({ id, label, icon: Icon, count }) => (
                     <button
                       key={id}
                       onClick={() => {
@@ -216,7 +229,7 @@ export default function DashboardComponent() {
                       }`}
                     >
                       <Icon className="w-4 h-4" />
-                      <span>{label}</span>
+                      <span>{label} ({count})</span>
                     </button>
                   ))}
                 </div>
@@ -227,10 +240,6 @@ export default function DashboardComponent() {
                 {/* Leads Tab */}
                 {activeTab === 'leads' && dashboardData && (
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                      <FiTrendingUp className="w-5 h-5 text-blue-400" />
-                      Leads
-                    </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
@@ -267,10 +276,7 @@ export default function DashboardComponent() {
                 {/* Tasks Tab */}
                 {activeTab === 'tasks' && dashboardData && (
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                      <MdAssignment className="w-5 h-5 text-purple-400" />
-                      Tasks
-                    </h3>
+                   
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
@@ -309,10 +315,7 @@ export default function DashboardComponent() {
                 {/* Users Tab */}
                 {activeTab === 'users' && dashboardData && (
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                      <FiUsers className="w-5 h-5 text-green-400" />
-                      Team Members
-                    </h3>
+                  
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>

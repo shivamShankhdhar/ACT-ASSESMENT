@@ -1,6 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcryptjs from 'bcryptjs';
 
+/**
+ * User Database Model
+ * NOTE: If you encounter E11000 duplicate key errors for fields that don't exist
+ * (like 'phone'), this indicates stale indexes in MongoDB.
+ * Fix: Drop the index from MongoDB Atlas > Collections > Users > Indexes > Drop Index
+ */
+
 export interface IUser extends Document {
   email: string;
   name: string;

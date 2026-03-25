@@ -70,8 +70,31 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error: any) {
     console.error('Register error:', error);
+
+    // Handle MongoDB duplicate key errors
+    if (error.code === 11000) {
+      // Since we only have email as unique field, any duplicate key error is for email
+      // If you see errors about "phone" field, it's a stale index from previous schema changes
+      // Go to MongoDB Atlas > Collections > test.users > Indexes tab > Delete the "phone_1" index
+      return NextResponse.json(
+        { error: 'User already registered with this email. Please use another email.' },
+        { status: 409 }
+      );
+    }
+
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors)
+        .map((err: any) => err.message)
+        .join(', ');
+      return NextResponse.json(
+        { error: messages },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: 'Internal server error. Please try again later.' },
       { status: 500 }
     );
   }
