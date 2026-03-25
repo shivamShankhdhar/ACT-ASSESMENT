@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -25,13 +25,14 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
+  const router = useRouter()
 
-    const isLoggedIn = !!localStorage.getItem('user'); // Replace with actual authentication logic
-const router = useRouter()
-
-  if (isLoggedIn) {
-   router.replace('/dashboard');
+ useEffect(() => {
+  const user = localStorage.getItem('user');
+  if (user) {
+    router.replace('/dashboard');
   }
+}, [router]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState('');
