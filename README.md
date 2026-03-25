@@ -115,8 +115,6 @@ Create a `.env.local` file in the project root with the following variables:
 npm run dev
 ```
 
-The application will be available at [http://localhost:3000](http://localhost:3000)
-
 ### 5. Build for Production
 
 ```bash
