@@ -36,7 +36,13 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterForm() {
-  const router = useRouter();
+
+    const isLoggedIn = !!localStorage.getItem('user'); // Replace with actual authentication logic
+const router = useRouter()
+
+  if (isLoggedIn) {
+    router.replace('/dashboard');
+  }
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [apiError, setApiError] = useState('');

@@ -1,3 +1,4 @@
+
 import LoginForm from '@/components/LoginForm';
 
 export const metadata = {
@@ -6,5 +7,6 @@ export const metadata = {
 };
 
 export default function LoginPage() {
+
   return <LoginForm />;
 }

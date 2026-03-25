@@ -25,7 +25,14 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-  const router = useRouter();
+
+    const isLoggedIn = !!localStorage.getItem('user'); // Replace with actual authentication logic
+const router = useRouter()
+
+  if (isLoggedIn) {
+   router.replace('/dashboard');
+  }
+
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
